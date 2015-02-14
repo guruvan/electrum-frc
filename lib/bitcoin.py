@@ -404,7 +404,7 @@ from ecdsa.util import string_to_number, number_to_string
 def msg_magic(message):
     varint = var_int(len(message))
     encoded_varint = "".join([chr(int(varint[i:i+2], 16)) for i in xrange(0, len(varint), 2)])
-    return "\x18Bitcoin Signed Message:\n" + encoded_varint + message
+    return "\x18Freicoin Signed Message:\n" + encoded_varint + message
 
 
 def verify_message(address, signature, message):
@@ -670,7 +670,7 @@ BITCOIN_HEADERS = (BITCOIN_HEADER_PUB, BITCOIN_HEADER_PRIV)
 TESTNET_HEADERS = (TESTNET_HEADER_PUB, TESTNET_HEADER_PRIV)
 
 def _get_headers(testnet):
-    """Returns the correct headers for either testnet or bitcoin, in the form
+    """Returns the correct headers for either testnet or freicoin, in the form
     of a 2-tuple, like (public, private)."""
     if testnet:
         return TESTNET_HEADERS
@@ -684,7 +684,7 @@ def deserialize_xkey(xkey):
     assert len(xkey) == 78
 
     xkey_header = xkey[0:4].encode('hex')
-    # Determine if the key is a bitcoin key or a testnet key.
+    # Determine if the key is a freicoin key or a testnet key.
     if xkey_header in TESTNET_HEADERS:
         head = TESTNET_HEADER_PRIV
     elif xkey_header in BITCOIN_HEADERS:
