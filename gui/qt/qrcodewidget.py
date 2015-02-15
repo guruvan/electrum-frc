@@ -6,9 +6,9 @@ import PyQt4.QtGui as QtGui
 import os
 import qrcode
 
-import electrum
-from electrum import bmp
-from electrum.i18n import _
+import electrum_frc
+from electrum_frc import bmp
+from electrum_frc.i18n import _
 
 
 class QRCodeWidget(QWidget):
@@ -104,7 +104,7 @@ class QRDialog(QDialog):
         hbox = QHBoxLayout()
         hbox.addStretch(1)
 
-        config = electrum.get_config()
+        config = electrum_frc.get_config()
         if config:
             filename = os.path.join(config.path, "qrcode.bmp")
 
