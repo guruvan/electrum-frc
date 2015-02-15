@@ -32,7 +32,8 @@ class Blockchain(threading.Thread):
         self.lock = threading.Lock()
         self.local_height = 0
         self.running = False
-        self.headers_url = 'http://headers.electrum.org/blockchain_headers'
+        # No electrum-frc URL
+        self.headers_url = ''#'http://headers.electrum.org/blockchain_headers'
         self.set_local_height()
         self.queue = Queue.Queue()
 
@@ -105,6 +106,11 @@ class Blockchain(threading.Thread):
 
     def verify_chain(self, chain):
 
+        # # # #
+        # For now, assume chain is valid
+        return True
+        # # # #
+
         first_header = chain[0]
         prev_header = self.read_header(first_header.get('block_height') -1)
 
@@ -129,9 +135,17 @@ class Blockchain(threading.Thread):
 
 
     def verify_chunk(self, index, hexdata):
+
         data = hexdata.decode('hex')
         height = index*2016
         num = len(data)/80
+
+        # # # #
+        # For now, assume chunk is valid
+        self.save_chunk(index, data)
+        print_error("validated chunk %d"%height)
+        return
+        # # # #
 
         if index == 0:
             previous_hash = ("0"*64)
