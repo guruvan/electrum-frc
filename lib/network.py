@@ -16,7 +16,7 @@ DEFAULT_PORTS = {'t':'50001', 's':'50002', 'h':'8081', 'g':'8082'}
 
 # Currently no Electrum-FRC servers
 DEFAULT_SERVERS = {
-    'localhost':DEFAULT_PORTS,
+    'electrum.freicoinalliance.com':DEFAULT_PORTS,
 }
 
 DISCONNECTED_RETRY_INTERVAL = 60
