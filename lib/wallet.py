@@ -27,7 +27,7 @@ import math
 import json
 import copy
 
-from util import print_msg, print_error, NotEnoughFunds
+from util import print_msg, print_error, NotEnoughFunds, apply_demurrage
 
 from bitcoin import *
 from account import *
@@ -423,7 +423,7 @@ class Abstract_Wallet(object):
                 key = item['prevout_hash'] + ':%d'%item['prevout_n']
                 self.spent_outputs.append(key)
 
-    def get_addr_balance(self, address):
+    def get_addr_balance(self, address, height=None):
         'returns the confirmed balance and pending (unconfirmed) balance change of this bitcoin address'
         #assert self.is_mine(address)
         h = self.history.get(address,[])
@@ -459,6 +459,9 @@ class Abstract_Wallet(object):
                     v += value
 
             if tx_height:
+                if height is None:
+                    height = tx_height
+                v = apply_demurrage(v, tx_height, height)
                 c += v  # confirmed coins value
             else:
                 u += v  # unconfirmed coins value
@@ -490,22 +493,22 @@ class Abstract_Wallet(object):
                 return acc_id
         return None
 
-    def get_account_balance(self, account):
-        return self.get_balance(self.get_account_addresses(account))
+    def get_account_balance(self, account, height=None):
+        return self.get_balance(self.get_account_addresses(account), height)
 
-    def get_frozen_balance(self):
-        return self.get_balance(self.frozen_addresses)
+    def get_frozen_balance(self, height=None):
+        return self.get_balance(self.frozen_addresses, height)
 
-    def get_balance(self, domain=None):
+    def get_balance(self, domain=None, height=None):
         if domain is None: domain = self.addresses(True)
         cc = uu = 0
         for addr in domain:
-            c, u = self.get_addr_balance(addr)
+            c, u = self.get_addr_balance(addr, height)
             cc += c
             uu += u
         return cc, uu
 
-    def get_unspent_coins(self, domain=None):
+    def get_unspent_coins(self, domain=None, height=None):
         coins = []
         if domain is None: domain = self.addresses(True)
         for addr in domain:
@@ -516,7 +519,11 @@ class Abstract_Wallet(object):
                 if tx is None: raise Exception("Wallet not synchronized")
                 is_coinbase = tx.inputs[0].get('prevout_hash') == '0'*64
                 for i, (address, value) in enumerate(tx.get_outputs()):
-                    output = {'address':address, 'value':value, 'prevout_n':i}
+                    if height is not None:
+                        adjusted_value = apply_demurrage(value, tx_height, height)
+                    else:
+                        adjusted_value = value
+                    output = {'address':address, 'value':adjusted_value, 'prevout_n':i}
                     if address != addr: continue
                     key = tx_hash + ":%d"%i
                     if key in self.spent_outputs: continue
@@ -699,7 +706,7 @@ class Abstract_Wallet(object):
         amount = sum( map(lambda x:x[2], outputs) )
         total = fee = 0
         inputs = []
-        tx = Transaction(inputs, outputs)
+        tx = Transaction(inputs, outputs, refheight=self.network.get_local_height())
         for item in coins:
             if item.get('coinbase') and item.get('height') + COINBASE_MATURITY > self.network.get_local_height():
                 continue
