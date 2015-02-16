@@ -518,7 +518,8 @@ class ElectrumWindow(QMainWindow):
                 text = _("Server is lagging (%d blocks)"%server_lag)
                 icon = QIcon(":icons/status_lagging.png")
             else:
-                c, u = self.wallet.get_account_balance(self.current_account)
+                use_height = self.network.get_local_height()
+                c, u = self.wallet.get_account_balance(self.current_account, use_height)
                 text =  _( "Balance" ) + ": %s "%( self.format_amount(c) ) + self.base_unit()
                 if u: text +=  " [%s unconfirmed]"%( self.format_amount(u,True).strip() )
 
@@ -1074,7 +1075,7 @@ class ElectrumWindow(QMainWindow):
         menu.exec_(self.from_list.viewport().mapToGlobal(position))
 
     def set_pay_from(self, domain = None):
-        self.pay_from = [] if domain == [] else self.wallet.get_unspent_coins(domain)
+        self.pay_from = [] if domain == [] else self.wallet.get_unspent_coins(domain, height=self.network.get_local_height())
         self.redraw_from_list()
 
     def redraw_from_list(self):
@@ -1556,7 +1557,7 @@ class ElectrumWindow(QMainWindow):
             domain = self.wallet.get_account_addresses(self.current_account)
             for i in self.wallet.frozen_addresses:
                 if i in domain: domain.remove(i)
-            return self.wallet.get_unspent_coins(domain)
+            return self.wallet.get_unspent_coins(domain, height=self.network.get_local_height())
 
 
     def send_from_addresses(self, addrs):
