@@ -468,6 +468,7 @@ def deserialize(raw):
     n_vout = vds.read_compact_size()
     d['outputs'] = list(parse_output(vds,i) for i in xrange(n_vout))
     d['lockTime'] = vds.read_uint32()
+    d['refheight'] = vds.read_int32()
     return d
 
 
@@ -482,10 +483,11 @@ class Transaction:
             self.raw = self.serialize()
         return self.raw
 
-    def __init__(self, inputs, outputs, locktime=0):
+    def __init__(self, inputs, outputs, locktime=0, refheight=0):
         self.inputs = inputs
         self.outputs = outputs
         self.locktime = locktime
+        self.refheight = refheight
         self.raw = None
 
     @classmethod
@@ -500,6 +502,7 @@ class Transaction:
         self.inputs = d['inputs']
         self.outputs = [(x['type'], x['address'], x['value']) for x in d['outputs']]
         self.locktime = d['lockTime']
+        self.refheight = d['refheight']
 
     @classmethod
     def sweep(klass, privkeys, network, to_address, fee):
@@ -627,7 +630,8 @@ class Transaction:
     def serialize(self, for_sig=None):
         inputs = self.inputs
         outputs = self.outputs
-        s  = int_to_hex(1,4)                                         # version
+        refheight = self.refheight
+        s  = int_to_hex(2,4)                                         # version
         s += var_int( len(inputs) )                                  # number of inputs
         for i, txin in enumerate(inputs):
             s += txin['prevout_hash'].decode('hex')[::-1].encode('hex')   # prev hash
@@ -644,6 +648,7 @@ class Transaction:
             s += var_int( len(script)/2 )                           #  script length
             s += script                                             #  script
         s += int_to_hex(0,4)                                        #  lock time
+        s += int_to_hex(refheight,4)                                #  refheight
         if for_sig is not None and for_sig != -1:
             s += int_to_hex(1, 4)                                   #  hash type
         return s
