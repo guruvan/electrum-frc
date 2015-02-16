@@ -23,6 +23,11 @@ def set_verbosity(b):
     global is_verbose
     is_verbose = b
 
+def apply_demurrage(value, received_height, current_height):
+    '''Applies demurrage to a deposit value'''
+    discount_rate = (1 - 2**-20) ** (current_height - received_height)
+    new_value = int(value * discount_rate)
+    return new_value
 
 def print_error(*args):
     if not is_verbose: return
