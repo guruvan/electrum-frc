@@ -65,16 +65,16 @@ setup(
     name="Electrum-frc",
     version=version.ELECTRUM_VERSION,
     install_requires=[
-        'slowaes>=0.1a1',
-        'ecdsa>=0.9',
-        'pbkdf2',
-        'requests',
-        'pyasn1-modules',
-        'pyasn1',
-        'qrcode',
-        'SocksiPy-branch',
-        'protobuf',
-        'tlslite'
+        'slowaes==0.1a1',
+        'ecdsa==0.13',
+        'pbkdf2==1.3',
+        'requests==2.5.1',
+        'pyasn1-modules==0.0.5',
+        'pyasn1==0.1.7',
+        'qrcode==5.1',
+        'SocksiPy-branch==1.01',
+        'protobuf==2.6.1',
+        'tlslite==0.4.8'
     ],
     package_dir={
         'electrum_frc': 'lib',

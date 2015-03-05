@@ -5,9 +5,8 @@ if __name__ == '__main__':
     import sys, re, shutil, os, hashlib
     import imp
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-    os.chdir('..')
 
-    imp.load_module('electrum', *imp.find_module('../lib'))
+    imp.load_module('electrum', *imp.find_module('lib'))
     from electrum.version import ELECTRUM_VERSION as version
 
     if not ( os.path.exists('packages')):
@@ -17,7 +16,7 @@ if __name__ == '__main__':
 
     os.system('rm -rf dist/e4a-%s'%version)
     os.mkdir('dist/e4a-%s'%version)
-    shutil.copyfile("electrum",'dist/e4a-%s/e4a.py'%version)
+    shutil.copyfile("electrum-frc",'dist/e4a-%s/e4a.py'%version)
     shutil.copytree("packages",'dist/e4a-%s/packages'%version)
     shutil.copytree("lib",'dist/e4a-%s/lib'%version)
     os.mkdir('dist/e4a-%s/gui'%version)

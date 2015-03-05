@@ -1,0 +1,34 @@
+#!/bin/bash -x
+VERSION="$1"
+echo "Making packages"
+mkdir -pv /root/repo
+git clone https://github.com/guruvan/electrum-frc /root/repo
+
+cd /root/repo
+git checkout v${VERSION}
+cp -v  /root/make_packages /root/repo/make_packages
+cp -v  /root/make_android /root/repo/make_android
+cp -v  /root/make_windows /root/repo/make_windows
+cd /root/repo
+mkdir ./packages
+./make_packages
+mv dist /releases/source
+pip install --no-compile -t packages -r /root/requirements.txt
+cp -av /root/packages ./
+mkdir dist
+./make_android
+mv dist /releases/android
+mkdir dist
+./make_windows
+cp -av dist /releases/windows
+## rm just isn't that expensive to run without fancy bash expansions
+
+rm -rf /opt/wine-electrum/drive_c/electrum-frc/Electrum-frc-$VERSION.*
+rm -rf /opt/wine-electrum/drive_c/electrum-frc/Electrum-frc-$VERSION/
+rm -rf /opt/wine-electrum/drive_c/electrum-frc/Electrum-frc-$VERSION*
+
+cp -v /root/repo/dist/Electrum-frc-$VERSION.zip /opt/wine-electrum/drive_c/electrum-frc/Electrum-frc-$VERSION.zip
+cd /opt/wine-electrum/drive_c/electrum-frc
+unzip Electrum-frc-$VERSION.zip
+#mv Electrum-frc-$VERSION/packages/google/protobuf Electrum-frc-$VERSION/packages/google.protobuf
+#mv Electrum-frc-$VERSION/packages/protobuf* Electrum-frc-$VERSION/packages/google.protobuf/
