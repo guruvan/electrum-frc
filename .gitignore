@@ -14,3 +14,6 @@ locale/
 .devlocaltmp/
 *_trial_temp
 packages
+contrib/electrum-frc-release/helpers/.gnupg/
+contrib/electrum-frc-release/helpers/.local/
+contrib/electrum-frc-release/helpers/.bash*
